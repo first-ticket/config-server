@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: config-server
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/first-ticket/config-repo.git
+          username: ${GIT_USERNAME}
+          password: ${GIT_PASSWORD}
+          default-label: main
+          clone-on-start: true
+          search-paths:
+            - '{application}'
+
+logging:
+  level:
+    org.springframework.cloud.config: INFO
