@@ -96,7 +96,7 @@ curl -u $CONFIG_SERVER_USERNAME:$CONFIG_SERVER_PASSWORD \
 ```yaml
 spring:
   datasource:
-  password: '{cipher}응답받은 암호문'
+    password: '{cipher}응답받은 암호문'
 ```
 
 ⚠️ **반드시 작은따옴표(`'`)로 감싸야 합니다.**
