@@ -20,6 +20,9 @@ config-repo의 설정 파일을 읽어 인증된 클라이언트 서비스에 �
 | `GIT_PASSWORD` | GitHub Personal Access Token (`repo` scope) |
 | `CONFIG_SERVER_USERNAME` | config-server 접근용 사용자 이름 |
 | `CONFIG_SERVER_PASSWORD` | config-server 접근용 비밀번호 |
+| `ENCRYPT_KEY` | 설정값 암호화/복호화용 마스터 키 |
+
+> 💡 `ENCRYPT_KEY` 생성: `openssl rand -base64 32`
 
 ### 2. 프로파일 설정
 
@@ -51,14 +54,74 @@ config-server의 모든 엔드포인트는 Basic Auth로 보호됩니다.
 
 ```yaml
 spring:
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
   cloud:
     config:
-      uri: ${CONFIG_SERVER_URI:http://localhost:8888}
       username: ${CONFIG_SERVER_USERNAME}
       password: ${CONFIG_SERVER_PASSWORD}
 ```
 
 클라이언트 서비스도 동일한 환경변수(`CONFIG_SERVER_USERNAME`, `CONFIG_SERVER_PASSWORD`)를 주입받아야 config-server에 접근할 수 있습니다.
+
+## 🔑 설정값 암호화
+
+DB 비밀번호, API 키 등 민감한 설정값은 **암호화하여** config-repo에 저장합니다.
+config-server가 `ENCRYPT_KEY`로 자동 복호화하여 클라이언트에 평문으로 전달합니다.
+
+### 동작 원리
+
+```
+[config-repo]
+password: '{cipher}5d4fc8f6...'       ← 암호화된 상태로 Git 저장
+↓
+[config-server가 ENCRYPT_KEY로 자동 복호화]
+↓
+[클라이언트 서비스]
+password: "qwer1234"                  ← 평문으로 수신
+```
+
+### 암호화 절차
+
+1. config-server의 `/encrypt` 엔드포인트로 평문을 암호문으로 변환:
+
+```bash
+curl -u $CONFIG_SERVER_USERNAME:$CONFIG_SERVER_PASSWORD \
+-X POST http://localhost:8888/encrypt \
+-d "평문값"
+```
+
+2. 응답받은 암호문을 config-repo의 yml에 `{cipher}` 접두어와 함께 저장:
+
+```yaml
+spring:
+  datasource:
+  password: '{cipher}응답받은 암호문'
+```
+
+⚠️ **반드시 작은따옴표(`'`)로 감싸야 합니다.**
+
+3. config-repo에 커밋/푸시
+
+4. 클라이언트 서비스는 재시작 시 자동으로 평문 값 수신
+
+### 복호화 테스트
+
+암호문이 올바른지 확인:
+
+```bash
+curl -u $CONFIG_SERVER_USERNAME:$CONFIG_SERVER_PASSWORD \
+-X POST http://localhost:8888/decrypt \
+-d "암호문"
+```
+
+### 주의사항
+
+- ❌ 평문 민감정보를 config-repo에 커밋 금지
+- ❌ `ENCRYPT_KEY`를 코드/yml/Git에 작성 금지
+- ❌ `{cipher}` 접두어 없이 암호문만 작성 금지
+- ✅ 민감정보는 반드시 암호화 후 저장
+- ✅ `ENCRYPT_KEY`는 환경변수로만 관리
 
 ## 프로파일
 
