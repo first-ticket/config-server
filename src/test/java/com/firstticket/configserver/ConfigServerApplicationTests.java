@@ -1,4 +1,4 @@
-package com.first_ticket.config_server;
+package com.firstticket.configserver;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
