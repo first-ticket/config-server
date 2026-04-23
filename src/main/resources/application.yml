@@ -2,6 +2,11 @@ spring:
   application:
     name: config-server
 
+  security:
+    user:
+      name: ${CONFIG_SERVER_USERNAME}
+      password: ${CONFIG_SERVER_PASSWORD}
+
   cloud:
     config:
       server:
@@ -17,3 +22,4 @@ spring:
 logging:
   level:
     org.springframework.cloud.config: INFO
+
