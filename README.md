@@ -48,12 +48,22 @@ JSON 응답에 config-repo의 설정값이 포함되면 정상 동작.
 config-server의 모든 엔드포인트는 Basic Auth로 보호됩니다.
 인증 없이 접근 시 `401 Unauthorized` 응답이 반환됩니다.
 
-### 클라이언트 서비스 연동
+인증 정보(`CONFIG_SERVER_USERNAME`, `CONFIG_SERVER_PASSWORD`) 설정 방법은 
+[클라이언트 서비스 연동](#-클라이언트-서비스-연동) 섹션을 참고하세요.
 
-각 클라이언트 서비스의 `application.yml`에 다음 설정을 추가하세요:
+## 🔌 클라이언트 서비스 연동
+
+### 1. build.gradle 의존성 추가
+
+```groovy
+implementation 'org.springframework.cloud:spring-cloud-starter-config'
+```
+### 2. application.yml 작성
 
 ```yaml
 spring:
+  application:
+    name: {your-service-name}    # ⚠️ 필수: config-repo의 폴더명/파일명과 일치해야 함
   config:
     import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
   cloud:
@@ -61,8 +71,13 @@ spring:
       username: ${CONFIG_SERVER_USERNAME}
       password: ${CONFIG_SERVER_PASSWORD}
 ```
+### 3. 환경변수 설정
 
-클라이언트 서비스도 동일한 환경변수(`CONFIG_SERVER_USERNAME`, `CONFIG_SERVER_PASSWORD`)를 주입받아야 config-server에 접근할 수 있습니다.
+`.env` 또는 IntelliJ Run Configuration에 다음을 추가:
+```text
+CONFIG_SERVER_USERNAME=
+CONFIG_SERVER_PASSWORD=
+```
 
 ## 🔑 설정값 암호화
 
