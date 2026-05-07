@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  config-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: config-server:latest
+    container_name: config-server
+    ports:
+      - "8888:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      CONFIG_SERVER_USERNAME: ${CONFIG_SERVER_USERNAME}
+      CONFIG_SERVER_PASSWORD: ${CONFIG_SERVER_PASSWORD}
+      GIT_USERNAME: ${GIT_USERNAME}
+      GIT_PASSWORD: ${GIT_PASSWORD}
+      EUREKA_URL: ${EUREKA_URL:-http://eureka-server:8761/eureka/}
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -XX:+UseG1GC"
+    networks:
+      - first-ticket-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  first-ticket-network:
+    external: true
+    name: first-ticket-network
