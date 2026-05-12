@@ -6,6 +6,8 @@ eureka:
     enabled: true
     service-url:
       defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
+  instance:
+    prefer-ip-address: true
 
 logging:
   level:
