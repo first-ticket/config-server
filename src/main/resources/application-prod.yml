@@ -1,11 +1,21 @@
 server:
   port: 8080
 
+spring:
+  cloud:
+    inetutils:
+      preferred-networks:
+        - 10\.
+        - 172\.
+        - 192\.168\.
+
 eureka:
   client:
     enabled: true
     service-url:
       defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka/}
+  instance:
+    prefer-ip-address: true
 
 logging:
   level:
