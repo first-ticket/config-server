@@ -104,7 +104,7 @@ jobs:
 
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition config-server \\
+          aws ecs describe-task-definition --task-definition config-server \
             --query taskDefinition > task-definition.json
 
       - name: Deploy to ECS
