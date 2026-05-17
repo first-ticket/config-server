@@ -19,6 +19,15 @@ spring:
           search-paths:
             - '{application}'
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health, info
+  endpoint:
+    prometheus:
+      access: read-only
+
 logging:
   level:
     org.springframework.cloud.config: INFO
